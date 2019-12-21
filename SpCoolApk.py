@@ -36,13 +36,15 @@ user_agent_list=['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (
 
 def ApkListPage():
     for i in range(page_num):
+        print('Starting page %d' % i)
+        CatLog('Starting page {}'.format(i))
         ua={'user-agent':user_agent_list[random.randint(0,10)]}
         # 请求APP列表
         try:
             page=requests.get(website+'/apk?p='+str(i),headers=ua)
         except BaseException as e:
             print(e)
-            CetLog(e.__str__)
+            CatLog(e.__str__)
             continue
         # 查找列表元素
         soup=BeautifulSoup(page.text,'lxml')
@@ -51,7 +53,7 @@ def ApkListPage():
             hrefs=item.find_all('a')[0:10] # 除最后一页, 每页10个
         except BaseException as e:
             print(e)
-            CetLog(e.__str__)
+            CatLog(e.__str__)
             continue
         # 处理每个APP条目
         for href in hrefs:
@@ -80,7 +82,7 @@ def ApkPage(path:str):
         dl_url=rep.headers['Location']
     except BaseException as e:
         print(e)
-        CetLog(e.__str__)
+        CatLog(e.__str__)
         return
     Download(packageName,dl_url)
 
@@ -91,20 +93,20 @@ def Download(packageName:str,url:str):
     d = home_dir + '\\' + (packageName if len(s)<3 else s[0]+'.'+s[1])
     if not os.path.exists(d):
         print('mkdir %s with domain' % d)
-        CetLog('mkdir '+d+' with domain')
+        CatLog('mkdir '+d+' with domain')
         os.mkdir(d)
     # 分块下载
     try:
         dltmp=requests.get(url,stream=True)
     except BaseException as e:
         print(e)
-        CetLog(e.__str__)
+        CatLog(e.__str__)
         return
     print('Downloading %s.apk ...' % packageName)
     file=d+'\\'+packageName+'.apk'
     if os.path.exists(file):
         print('Apk %s has existed, skip' % packageName)
-        CetLog('Apk '+packageName+' has existed, skip')
+        CatLog('Apk '+packageName+' has existed, skip')
         return
     try:
         with open(file,'wb') as f:
@@ -113,10 +115,10 @@ def Download(packageName:str,url:str):
                     f.write(chunk)
     except BaseException as e:
         print(e)
-        CetLog(e.__str__)
+        CatLog(e.__str__)
     return
 
-def CetLog(s:str):
+def CatLog(s:str):
     '''日志记录'''
     t=time.localtime()
     ltime='星期{} | {}年{}月{}日{}时{}分{}秒 >>> '.format(t.tm_wday,t.tm_year,t.tm_mon,t.tm_mday,t.tm_hour,t.tm_min,t.tm_sec)
