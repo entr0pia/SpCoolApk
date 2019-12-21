@@ -56,6 +56,7 @@ def ApkListPage():
             CatLog(e.__str__)
             continue
         # 处理每个APP条目
+        time.sleep(10)
         for href in hrefs:
             if 'href' in href.attrs:
                 ApkPage(href.attrs['href'])
@@ -78,6 +79,7 @@ def ApkPage(path:str):
         # 获取下载直连
         jsFun=soup.find_all('script',attrs={'type':'text/javascript'})[0]
         dl=re.findall(url_pattern,jsFun.text)
+        time.sleep(10)
         rep=ss.get(dl[0],allow_redirects=False)
         dl_url=rep.headers['Location']
     except BaseException as e:
@@ -97,6 +99,7 @@ def Download(packageName:str,url:str):
         os.mkdir(d)
     # 分块下载
     try:
+        time.sleep(3)
         dltmp=requests.get(url,stream=True)
     except BaseException as e:
         print(e)
@@ -121,7 +124,7 @@ def Download(packageName:str,url:str):
 def CatLog(s:str):
     '''日志记录'''
     t=time.localtime()
-    ltime='星期{} | {}年{}月{}日{}时{}分{}秒 >>> '.format(t.tm_wday,t.tm_year,t.tm_mon,t.tm_mday,t.tm_hour,t.tm_min,t.tm_sec)
+    ltime='{}年{}月{}日{}时{}分{}秒 >>> '.format(t.tm_year,t.tm_mon,t.tm_mday,t.tm_hour,t.tm_min,t.tm_sec)
     with open(home_dir+'\\log.txt','a') as f:
         try:
             f.write(ltime+s+'\n')
