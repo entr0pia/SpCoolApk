@@ -91,6 +91,7 @@ def ApkPage(path:str):
 def Download(packageName:str,url:str):
     '''处理下载事件'''
     # 按域名划分目录
+    ua={'User-Agent':user_agent_list[random.randint(0,10)]}
     s=packageName.split('.')
     d = home_dir + '\\' + (packageName if len(s)<3 else s[0]+'.'+s[1])
     if not os.path.exists(d):
@@ -100,7 +101,7 @@ def Download(packageName:str,url:str):
     # 分块下载
     try:
         time.sleep(3)
-        dltmp=requests.get(url,stream=True)
+        dltmp=requests.get(url,headers=ua,stream=True)
     except BaseException as e:
         print(e)
         CatLog(e.__str__)
