@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 page_num=302        #页数
-home_dir=r'D:\Apks' #主存储目录
+home_dir=r'D:\Apks\App' #主存储目录
 
 website='https://coolapk.com'
 url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
@@ -143,5 +143,12 @@ def Statics(packageName:str,mss:Tag):
 
     return
 
-if __name__ == "__main__":
+def run():
+    if not os.path.exists(home_dir):
+        os.mkdir(home_dir)
     ApkListPage()
+
+if __name__ == "__main__":
+    print('Start')
+    run()
+    print('End')
