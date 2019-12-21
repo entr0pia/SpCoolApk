@@ -35,7 +35,7 @@ user_agent_list=['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (
 
 
 def ApkListPage():
-    for i in range(page_num):
+    for i in range(13,page_num):
         print('Starting page %d' % i)
         CatLog('Starting page {}'.format(i))
         ua={'user-agent':user_agent_list[random.randint(0,10)]}
@@ -75,7 +75,6 @@ def ApkPage(path:str):
         # 获取APP信息
         soup=BeautifulSoup(page.text,'lxml')
         mss=soup.find_all('div',attrs={'class':'apk_topbar_mss'})[0]
-        Statics(packageName,mss)
         # 获取下载直连
         jsFun=soup.find_all('script',attrs={'type':'text/javascript'})[0]
         dl=re.findall(url_pattern,jsFun.text)
@@ -86,12 +85,12 @@ def ApkPage(path:str):
         print(e)
         CatLog(e.__str__)
         return
-    Download(packageName,dl_url)
+    Download(packageName,dl_url,mss)
 
-def Download(packageName:str,url:str):
+def Download(packageName:str,url:str,mss:Tag):
     '''处理下载事件'''
     # 按域名划分目录
-    ua={'User-Agent':user_agent_list[random.randint(0,10)]}
+    ua={'User-Agent':user_agent_list[random.randint(0,7)]}
     s=packageName.split('.')
     d = home_dir + '\\' + (packageName if len(s)<3 else s[0]+'.'+s[1])
     if not os.path.exists(d):
@@ -107,6 +106,7 @@ def Download(packageName:str,url:str):
         CatLog(e.__str__)
         return
     print('Downloading %s.apk ...' % packageName)
+    Statics(packageName,mss)
     file=d+'\\'+packageName+'.apk'
     if os.path.exists(file):
         print('Apk %s has existed, skip' % packageName)
@@ -141,7 +141,7 @@ def Statics(packageName:str,mss:Tag):
     apkSize='0' if not res else res[0]           #应用大小
     num=column[1].replace('下载','').strip()     #下载数
     staticFile=home_dir+'\\statics.csv'
-    with open(staticFile,'a') as f:
+    with open(staticFile,'a',newline='',encoding='utf-8') as f:
         writer=csv.writer(f)
         writer.writerow([appName,packageName,num,apkSize])
 
