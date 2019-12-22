@@ -42,17 +42,17 @@ user_agent_list=['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (
 def ApkListPage():
     '''应用首页'''
     # 使用代理
-    proxy = libProxy.GetProxy()
-    for i in range(58,page_num):
+    for i in range(76,page_num):
+        proxy = libProxy.GetProxy()
         print('Starting page %d' % i)
         CatLog('Starting page {}'.format(i))
         ua={'user-agent':user_agent_list[random.randint(0,10)]}
         # 请求APP列表
         try:
             if proxy:
-                page=requests.get(website+'/apk?p='+str(i),headers=ua,proxies={'http':proxy})
+                page=requests.get(website+'/apk?p='+str(i),headers=ua,proxies={'http':proxy},timeout=30)
             else:
-                page=requests.get(website+'/apk?p='+str(i),headers=ua)
+                page=requests.get(website+'/apk?p='+str(i),headers=ua,timeout=30)
 
         except BaseException as e:
             print(e)
@@ -72,6 +72,7 @@ def ApkListPage():
         for href in hrefs:
             if 'href' in href.attrs:
                 ApkPage(href.attrs['href'])
+    return
 
 
 def ApkPage(path:str):
@@ -85,9 +86,9 @@ def ApkPage(path:str):
     # 解析APP页面
     try:
         if proxy:
-            page=ss.get(url,headers=ua,proxies={'http':proxy})
+            page=ss.get(url,headers=ua,proxies={'http':proxy},timeout=30)
         else:
-            page=ss.get(url,headers=ua)
+            page=ss.get(url,headers=ua,timeout=30)
 
         # 获取APP信息
         soup=BeautifulSoup(page.text,'lxml')
@@ -96,7 +97,7 @@ def ApkPage(path:str):
         jsFun=soup.find_all('script',attrs={'type':'text/javascript'})[0]
         dl=re.findall(url_pattern,jsFun.text)
         randsleep()
-        rep=ss.get(dl[0],allow_redirects=False)
+        rep=ss.get(dl[0],allow_redirects=False,timeout=30)
         dl_url=rep.headers['Location']
     except BaseException as e:
         print(e)
@@ -117,7 +118,7 @@ def Download(packageName:str,url:str,mss:Tag):
     # 分块下载
     try:
         randsleep()
-        dltmp=requests.get(url,headers=ua,stream=True)
+        dltmp=requests.get(url,headers=ua,stream=True,timeout=30)
     except BaseException as e:
         print(e)
         CatLog(e.__str__)
@@ -157,6 +158,7 @@ def CatLog(s:str):
                 f.close()
     except BaseException:
         pass
+    return
 
 def Statics(packageName:str,mss:Tag):
     '''统计APP信息'''
@@ -176,9 +178,11 @@ def run():
     if not os.path.exists(home_dir):
         os.mkdir(home_dir)
     ApkListPage()
+    return
 
 def randsleep():
     time.sleep(random.random()*10)
+    return
 
 
 if __name__ == "__main__":

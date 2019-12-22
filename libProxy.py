@@ -12,10 +12,11 @@ def GetProxy():
     try:
         tr=trs[random.randint(1,10)]
     except BaseException:
-        if len(trs) < 1:
+        l =len(trs)
+        if l < 1:
             return None
         else:
-            tr=trs[1]
+            tr=trs[l]
     tds=tr.find_all('td')
     proxy=tds[3].text.lower()+'://'+tds[0].text+':'+tds[1].text
     return proxy
