@@ -57,8 +57,8 @@ def GetProxy():
 def ApkListPage():
     '''应用首页'''
     # 使用代理
-    game_list=list()
-    for i in range(page_num):
+    game_set=set()
+    for i in range(2):
         proxy = GetProxy()
         print('Starting page %d' % i)
         CatLog('Starting page {}'.format(i))
@@ -86,8 +86,8 @@ def ApkListPage():
         # 处理每个APP条目
         for href in hrefs:
             if 'href' in href.attrs:
-                game_list.append(href.attrs['href'])
-    for game in game_list:
+                game_set.add(href.attrs['href'])
+    for game in game_set:
         randsleep()
         ApkPage(game)
     return
