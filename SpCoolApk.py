@@ -142,6 +142,7 @@ def Download(packageName:str,url:str,mss:Tag):
         CatLog(e.__str__)
         return
     print('Downloading %s.apk ...' % packageName)
+    CatLog('Downloading {}.apk'.format(packageName))
     Statics(packageName,mss)
     t=threading.Thread(target=Write,args=(packageName,d,dltmp))
     t.start()
@@ -167,7 +168,7 @@ def Write(packageName,d,dltmp:requests.Response):
 def CatLog(s:str):
     '''日志记录'''
     t=time.localtime()
-    ltime='{}年{}月{}日{}时{}分{}秒 >>> '.format(t.tm_year,t.tm_mon,t.tm_mday,t.tm_hour,t.tm_min,t.tm_sec)
+    ltime='{}年{}月{}日{}时{}分{}秒\t>>> '.format(t.tm_year,t.tm_mon,t.tm_mday,t.tm_hour,t.tm_min,t.tm_sec)
     try:
         with open(home_dir+'\\log.txt','a') as f:
             try:
