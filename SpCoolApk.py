@@ -68,7 +68,7 @@ def ApkListPage():
             CatLog(e.__str__)
             continue
         # 处理每个APP条目
-        time.sleep(5)
+        randsleep()
         for href in hrefs:
             if 'href' in href.attrs:
                 ApkPage(href.attrs['href'])
@@ -95,7 +95,7 @@ def ApkPage(path:str):
         # 获取下载直连
         jsFun=soup.find_all('script',attrs={'type':'text/javascript'})[0]
         dl=re.findall(url_pattern,jsFun.text)
-        time.sleep(5)
+        randsleep()
         rep=ss.get(dl[0],allow_redirects=False)
         dl_url=rep.headers['Location']
     except BaseException as e:
@@ -116,7 +116,7 @@ def Download(packageName:str,url:str,mss:Tag):
         os.mkdir(d)
     # 分块下载
     try:
-        time.sleep(5)
+        randsleep()
         dltmp=requests.get(url,headers=ua,stream=True)
     except BaseException as e:
         print(e)
@@ -126,7 +126,6 @@ def Download(packageName:str,url:str,mss:Tag):
     Statics(packageName,mss)
     t=threading.Thread(target=Write,args=(packageName,d,dltmp))
     t.start()
-    t.join()
     return
 
 def Write(packageName,d,dltmp:requests.Response):
@@ -138,7 +137,7 @@ def Write(packageName,d,dltmp:requests.Response):
         return
     try:
         with open(file,'wb') as f:
-            for chunk in dltmp.iter_content(0x8120):
+            for chunk in dltmp.iter_content(0x4096):
                 if chunk:
                     f.write(chunk)
     except BaseException as e:
@@ -175,6 +174,9 @@ def run():
     if not os.path.exists(home_dir):
         os.mkdir(home_dir)
     ApkListPage()
+
+def randsleep():
+    time.sleep(random.random()*10)
 
 if __name__ == "__main__":
     print('Start')

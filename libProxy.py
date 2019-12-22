@@ -18,7 +18,6 @@ def GetProxy():
             tr=trs[1]
     tds=tr.find_all('td')
     proxy=tds[3].text.lower()+'://'+tds[0].text+':'+tds[1].text
-    print(proxy)
     return proxy
 
 if __name__ == "__main__":
