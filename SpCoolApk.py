@@ -12,7 +12,6 @@ import random
 import re
 import time
 import threading
-import json
 
 import requests
 from bs4 import BeautifulSoup
@@ -38,7 +37,8 @@ user_agent_list=['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (
 
 
 def get_proxy():
-    return requests.get("http://127.0.0.1:5010/get/").json()
+    res=requests.get("http://127.0.0.1:5010/get/")
+    return res.json() if res.status_code==200 else None
 
 def delete_proxy(proxy):
     requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
@@ -53,7 +53,11 @@ def ApkListPage():
         ua={'user-agent':user_agent_list[random.randint(0,10)]}
         # 请求APP列表
         try:
-            page=requests.get(website+'/apk?p='+str(i),headers=ua,proxies={'http':'http://{}'.format(proxy)})
+            if proxy:
+                page=requests.get(website+'/apk?p='+str(i),headers=ua,proxies={'http':'http://{}'.format(proxy)})
+            else:
+                page=requests.get(website+'/apk?p='+str(i),headers=ua)
+
         except BaseException as e:
             print(e)
             CatLog(e.__str__)
@@ -68,7 +72,7 @@ def ApkListPage():
             CatLog(e.__str__)
             continue
         # 处理每个APP条目
-        time.sleep(10)
+        time.sleep(5)
         for href in hrefs:
             if 'href' in href.attrs:
                 ApkPage(href.attrs['href'])
@@ -84,14 +88,18 @@ def ApkPage(path:str):
     ss=requests.session()
     # 解析APP页面
     try:
-        page=ss.get(url,headers=ua,proxies={'http':'http://{}'.format(proxy)})
+        if proxy:
+            page=ss.get(url,headers=ua,proxies={'http':'http://{}'.format(proxy)})
+        else:
+            page=ss.get(url,headers=ua)
+
         # 获取APP信息
         soup=BeautifulSoup(page.text,'lxml')
         mss=soup.find_all('div',attrs={'class':'apk_topbar_mss'})[0]
         # 获取下载直连
         jsFun=soup.find_all('script',attrs={'type':'text/javascript'})[0]
         dl=re.findall(url_pattern,jsFun.text)
-        time.sleep(10)
+        time.sleep(5)
         rep=ss.get(dl[0],allow_redirects=False)
         dl_url=rep.headers['Location']
     except BaseException as e:
@@ -112,7 +120,7 @@ def Download(packageName:str,url:str,mss:Tag):
         os.mkdir(d)
     # 分块下载
     try:
-        time.sleep(3)
+        time.sleep(5)
         dltmp=requests.get(url,headers=ua,stream=True)
     except BaseException as e:
         print(e)
