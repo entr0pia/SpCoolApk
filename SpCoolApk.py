@@ -43,7 +43,7 @@ def ApkListPage():
     '''应用首页'''
     # 使用代理
     proxy = libProxy.GetProxy()
-    for i in range(38,page_num):
+    for i in range(58,page_num):
         print('Starting page %d' % i)
         CatLog('Starting page {}'.format(i))
         ua={'user-agent':user_agent_list[random.randint(0,10)]}
@@ -149,11 +149,14 @@ def CatLog(s:str):
     '''日志记录'''
     t=time.localtime()
     ltime='{}年{}月{}日{}时{}分{}秒 >>> '.format(t.tm_year,t.tm_mon,t.tm_mday,t.tm_hour,t.tm_min,t.tm_sec)
-    with open(home_dir+'\\log.txt','a') as f:
-        try:
-            f.write(ltime+s+'\n')
-        except BaseException:
-            f.close()
+    try:
+        with open(home_dir+'\\log.txt','a') as f:
+            try:
+                f.write(ltime+s+'\n')
+            except BaseException:
+                f.close()
+    except BaseException:
+        pass
 
 def Statics(packageName:str,mss:Tag):
     '''统计APP信息'''
