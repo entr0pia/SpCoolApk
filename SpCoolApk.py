@@ -58,7 +58,7 @@ def ApkListPage():
     '''应用首页'''
     # 使用代理
     game_set=set()
-    for i in range(2):
+    for i in range(1,page_num):
         proxy = GetProxy()
         print('Starting page %d' % i)
         CatLog('Starting page {}'.format(i))
