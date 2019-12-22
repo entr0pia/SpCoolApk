@@ -111,7 +111,7 @@ def Download(packageName:str,url:str,mss:Tag):
     s=packageName.split('.')
     d = home_dir + '\\' + (packageName if len(s)<3 else s[0]+'.'+s[1])
     if not os.path.exists(d):
-        print('mkdir %s with domain' % d)
+        #print('mkdir %s with domain' % d)
         CatLog('mkdir '+d+' with domain')
         os.mkdir(d)
     # 分块下载
@@ -167,7 +167,6 @@ def Statics(packageName:str,mss:Tag):
     with open(staticFile,'a',newline='',encoding='utf-8') as f:
         writer=csv.writer(f)
         writer.writerow([appName,packageName,num,apkSize])
-
     return
 
 def run():
@@ -177,6 +176,7 @@ def run():
 
 def randsleep():
     time.sleep(random.random()*10)
+
 
 if __name__ == "__main__":
     print('Start')
