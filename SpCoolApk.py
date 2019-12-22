@@ -3,6 +3,7 @@
 @作者:  风沐白
 @文件:  SpCoolApk.py
 @描述:  爬取酷安网的apk文件
+@代理:  git@github.com:jhao104/proxy_pool.git
 '''
 
 import csv
@@ -10,6 +11,8 @@ import os
 import random
 import re
 import time
+import threading
+import json
 
 import requests
 from bs4 import BeautifulSoup
@@ -34,14 +37,23 @@ user_agent_list=['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (
                 'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16']
 
 
+def get_proxy():
+    return requests.get("http://127.0.0.1:5010/get/").json()
+
+def delete_proxy(proxy):
+    requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+
 def ApkListPage():
-    for i in range(13,page_num):
+    '''应用首页'''
+    # 使用代理
+    proxy = get_proxy().get("proxy")
+    for i in range(38,page_num):
         print('Starting page %d' % i)
         CatLog('Starting page {}'.format(i))
         ua={'user-agent':user_agent_list[random.randint(0,10)]}
         # 请求APP列表
         try:
-            page=requests.get(website+'/apk?p='+str(i),headers=ua)
+            page=requests.get(website+'/apk?p='+str(i),headers=ua,proxies={'http':'http://{}'.format(proxy)})
         except BaseException as e:
             print(e)
             CatLog(e.__str__)
@@ -64,6 +76,7 @@ def ApkListPage():
 
 def ApkPage(path:str):
     '''处理APP页面'''
+    proxy = get_proxy().get("proxy")
     url=website+path
     packageName=path.split('/')[-1]
     ua={'User-Agent':user_agent_list[random.randint(0,10)]}
@@ -71,7 +84,7 @@ def ApkPage(path:str):
     ss=requests.session()
     # 解析APP页面
     try:
-        page=ss.get(url,headers=ua)
+        page=ss.get(url,headers=ua,proxies={'http':'http://{}'.format(proxy)})
         # 获取APP信息
         soup=BeautifulSoup(page.text,'lxml')
         mss=soup.find_all('div',attrs={'class':'apk_topbar_mss'})[0]
@@ -107,6 +120,13 @@ def Download(packageName:str,url:str,mss:Tag):
         return
     print('Downloading %s.apk ...' % packageName)
     Statics(packageName,mss)
+    t=threading.Thread(target=Write,args=(packageName,d,dltmp))
+    t.start()
+    t.join()
+    return
+
+def Write(packageName,d,dltmp:requests.Response):
+    '''写入apk文件'''
     file=d+'\\'+packageName+'.apk'
     if os.path.exists(file):
         print('Apk %s has existed, skip' % packageName)
@@ -120,7 +140,7 @@ def Download(packageName:str,url:str,mss:Tag):
     except BaseException as e:
         print(e)
         CatLog(e.__str__)
-    return
+
 
 def CatLog(s:str):
     '''日志记录'''
