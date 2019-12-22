@@ -21,4 +21,4 @@ def GetProxy():
     return proxy
 
 if __name__ == "__main__":
-    GetProxy()
+    print(GetProxy())
