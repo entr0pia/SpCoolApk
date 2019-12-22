@@ -17,10 +17,9 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-import libProxy
 
-page_num=302        #页数
-home_dir=r'D:\Apks\App' #主存储目录
+page_num=87              #页数
+home_dir=r'D:\Apks\game' #主存储目录
 
 website='https://coolapk.com'
 url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
@@ -38,21 +37,38 @@ user_agent_list=['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (
                 'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16']
 
 
+def GetProxy():
+    '''获取代理'''
+    r=requests.get('https://www.freeip.top/?page=1&protocol=http&country=%E4%B8%AD%E5%9B%BD')
+    soup=BeautifulSoup(r.text,'lxml')
+    trs=soup.find_all('tr')
+    try:
+        tr=trs[random.randint(1,10)]
+    except BaseException:
+        l =len(trs)
+        if l < 1:
+            return None
+        else:
+            tr=trs[l]
+    tds=tr.find_all('td')
+    proxy=tds[3].text.lower()+'://'+tds[0].text+':'+tds[1].text
+    return proxy
 
 def ApkListPage():
     '''应用首页'''
     # 使用代理
-    for i in range(76,page_num):
-        proxy = libProxy.GetProxy()
+    game_list=list()
+    for i in range(page_num):
+        proxy = GetProxy()
         print('Starting page %d' % i)
         CatLog('Starting page {}'.format(i))
         ua={'user-agent':user_agent_list[random.randint(0,10)]}
         # 请求APP列表
         try:
             if proxy:
-                page=requests.get(website+'/apk?p='+str(i),headers=ua,proxies={'http':proxy},timeout=30)
+                page=requests.get(website+'/game?p='+str(i),headers=ua,proxies={'http':proxy},timeout=30)
             else:
-                page=requests.get(website+'/apk?p='+str(i),headers=ua,timeout=30)
+                page=requests.get(website+'/game?p='+str(i),headers=ua,timeout=30)
 
         except BaseException as e:
             print(e)
@@ -60,7 +76,7 @@ def ApkListPage():
             continue
         # 查找列表元素
         soup=BeautifulSoup(page.text,'lxml')
-        item=soup.find_all('div',attrs={'class':'app_left_list'})[0]
+        item=soup.find_all('div',attrs={'class':'game_left_three'})[0]
         try:
             hrefs=item.find_all('a')[0:10] # 除最后一页, 每页10个
         except BaseException as e:
@@ -68,16 +84,18 @@ def ApkListPage():
             CatLog('in Page {}: {}'.format(i,e.__str__))
             continue
         # 处理每个APP条目
-        randsleep()
         for href in hrefs:
             if 'href' in href.attrs:
-                ApkPage(href.attrs['href'])
+                game_list.append(href.attrs['href'])
+    for game in game_list:
+        randsleep()
+        ApkPage(game)
     return
 
 
 def ApkPage(path:str):
     '''处理APP页面'''
-    proxy = libProxy.GetProxy()
+    proxy = GetProxy()
     url=website+path
     packageName=path.split('/')[-1]
     ua={'User-Agent':user_agent_list[random.randint(0,10)]}
@@ -181,7 +199,7 @@ def run():
     return
 
 def randsleep():
-    time.sleep(random.random()*10)
+    time.sleep(random.random()*3)
     return
 
 
