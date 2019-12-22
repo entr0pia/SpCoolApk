@@ -56,7 +56,7 @@ def ApkListPage():
 
         except BaseException as e:
             print(e)
-            CatLog(e.__str__)
+            CatLog('in Page {}: {}'.format(i,e.__str__))
             continue
         # 查找列表元素
         soup=BeautifulSoup(page.text,'lxml')
@@ -65,7 +65,7 @@ def ApkListPage():
             hrefs=item.find_all('a')[0:10] # 除最后一页, 每页10个
         except BaseException as e:
             print(e)
-            CatLog(e.__str__)
+            CatLog('in Page {}: {}'.format(i,e.__str__))
             continue
         # 处理每个APP条目
         randsleep()
