@@ -17,6 +17,8 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
+import libProxy
+
 page_num=302        #页数
 home_dir=r'D:\Apks\App' #主存储目录
 
@@ -36,17 +38,11 @@ user_agent_list=['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (
                 'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16']
 
 
-def get_proxy():
-    res=requests.get("http://127.0.0.1:5010/get/")
-    return res.json() if res.status_code==200 else None
-
-def delete_proxy(proxy):
-    requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
 
 def ApkListPage():
     '''应用首页'''
     # 使用代理
-    proxy = get_proxy().get("proxy")
+    proxy = libProxy.GetProxy()
     for i in range(38,page_num):
         print('Starting page %d' % i)
         CatLog('Starting page {}'.format(i))
@@ -54,7 +50,7 @@ def ApkListPage():
         # 请求APP列表
         try:
             if proxy:
-                page=requests.get(website+'/apk?p='+str(i),headers=ua,proxies={'http':'http://{}'.format(proxy)})
+                page=requests.get(website+'/apk?p='+str(i),headers=ua,proxies={'http':proxy})
             else:
                 page=requests.get(website+'/apk?p='+str(i),headers=ua)
 
@@ -80,7 +76,7 @@ def ApkListPage():
 
 def ApkPage(path:str):
     '''处理APP页面'''
-    proxy = get_proxy().get("proxy")
+    proxy = libProxy.GetProxy()
     url=website+path
     packageName=path.split('/')[-1]
     ua={'User-Agent':user_agent_list[random.randint(0,10)]}
@@ -89,7 +85,7 @@ def ApkPage(path:str):
     # 解析APP页面
     try:
         if proxy:
-            page=ss.get(url,headers=ua,proxies={'http':'http://{}'.format(proxy)})
+            page=ss.get(url,headers=ua,proxies={'http':proxy})
         else:
             page=ss.get(url,headers=ua)
 
