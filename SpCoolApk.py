@@ -12,6 +12,7 @@ import random
 import re
 import time
 import threading
+import pickle
 
 import requests
 from requests.exceptions import *
@@ -212,7 +213,12 @@ def Statics(packageName:str,mss:Tag):
 def run():
     if not os.path.exists(home_dir):
         os.mkdir(home_dir)
+    if os.path.exists('black_list.pickle'):
+        with open('black_list.pickle','rb') as f:
+            black_list=pickle.load(f)
     ApkListPage()
+    with open('black_list.pickle','wb') as f:
+        black_list=pickle.dump(black_list,f)
     return
 
 
